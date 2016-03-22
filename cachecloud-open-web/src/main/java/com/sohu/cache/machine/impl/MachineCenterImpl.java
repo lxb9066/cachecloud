@@ -37,6 +37,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -96,7 +97,7 @@ public class MachineCenterImpl implements MachineCenter {
         dataMap.put(ConstUtils.HOST_ID_KEY, hostId);
         JobKey jobKey = JobKey.jobKey(ConstUtils.MACHINE_JOB_NAME, ConstUtils.MACHINE_JOB_GROUP);
         TriggerKey triggerKey = TriggerKey.triggerKey(ip, ConstUtils.MACHINE_TRIGGER_GROUP + hostId);
-        boolean result = schedulerCenter.deployJobByCron(jobKey, triggerKey, dataMap, ScheduleUtil.getHourCronByHostId                (hostId), false);
+        boolean result = schedulerCenter.deployJobByCron(jobKey, triggerKey, dataMap, ScheduleUtil.getMinuteCronByAppId(hostId), false);
 
         return result;
     }
@@ -138,6 +139,7 @@ public class MachineCenterImpl implements MachineCenter {
                 instanceStatsCenter.saveStandardStats(infoMap, ip, (int) hostId, ConstUtils.MACHINE);
                 machineStats.setMemoryFree(Long.valueOf(machineStats.getMemoryFree()) * ConstUtils._1024 + "");
                 machineStats.setMemoryTotal(Long.valueOf(machineStats.getMemoryTotal()) * ConstUtils._1024 + "");
+                machineStats.setModifyTime(new Date());
                 machineStatsDao.mergeMachineStats(machineStats);
                 logger.info("collect machine info done, host: {}, time: {}", ip, collectTime);
             }
@@ -372,13 +374,19 @@ public class MachineCenterImpl implements MachineCenter {
 
     @Override
     public List<MachineStats> getMachineStats(String ipLike) {
-        List<MachineStats> list = machineStatsDao.getMachineStats(ipLike);
-        for (MachineStats ms : list) {
-            int memoryHost = instanceDao.getMemoryByHost(ms.getIp());
-            ms.setMemoryAllocated(memoryHost);
-            ms.setInfo(machineDao.getMachineInfoByIp(ms.getIp()));
+        List<MachineInfo> machineInfoList = machineDao.getMachineInfoByLikeIp(ipLike);
+        List<MachineStats> machineStatsList = new ArrayList<MachineStats>();
+        for (MachineInfo machineInfo : machineInfoList) {
+            String ip = machineInfo.getIp();
+            MachineStats machineStats = machineStatsDao.getMachineStatsByIp(ip);
+            if (machineStats == null) {
+                machineStats = new MachineStats();
+            }
+            machineStats.setMemoryAllocated(instanceDao.getMemoryByHost(ip));
+            machineStats.setInfo(machineInfo);
+            machineStatsList.add(machineStats);
         }
-        return list;
+        return machineStatsList;
     }
 
     @Override

@@ -35,6 +35,18 @@
         from machine_info
         where ip = #{ip};
     </select>
+    
+    <!--通过ip查找机器-->
+    <select id="getMachineInfoByLikeIp" resultType="MachineInfo">
+        select
+          id, modify_time, <include refid="machine_info_columns"/>
+        from machine_info
+        <choose>
+            <when test="ipLike != '' and ipLike != null">
+                where ip like '%${ipLike}%'
+            </when>
+        </choose>
+    </select>
 
     <!--保存机器信息-->
     <select id="saveMachineInfo" parameterType="MachineInfo">
@@ -42,8 +54,12 @@
           (<include refid="machine_info_columns"/>)
         values
           (<include refid="machine_info_fields"/>)
+        on duplicate key 
+        update ssh_user=#{sshUser},ssh_passwd=#{sshPasswd},room=#{room},mem=#{mem},cpu=#{cpu},
+        virtual=#{virtual},real_ip=#{realIp},service_time=#{serviceTime},fault_count=#{faultCount},
+        warn=#{warn},available=#{available},type=#{type},groupId=#{groupId},extra_desc=#{extraDesc}
     </select>
-
+    
     <!--根据ip删除一台机器的信息-->
     <delete id="removeMachineInfoByIp" parameterType="string">
         DELETE FROM machine_info

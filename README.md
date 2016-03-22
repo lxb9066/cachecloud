@@ -1,4 +1,4 @@
-##<a name="index"/>目录&nbsp;&nbsp;(具体细节[wiki文档](https://github.com/sohutv/cachecloud/wiki "Cachecloud Wiki")、[page](http://sohutv.github.io/cachecloud "Cachecloud page")、QQ群：534429768)
+##<a name="index"/>目录&nbsp;&nbsp;(具体细节[wiki文档](https://github.com/sohutv/cachecloud/wiki "Cachecloud Wiki")、[page](http://sohutv.github.io/cachecloud "Cachecloud page")、[视频教程](http://my.tv.sohu.com/pl/9100280/index.shtml "Cachecloud video")、QQ群：534429768)
 * [一、CacheCloud是做什么的](#cc1)
 * [二、CacheCloud提供哪些功能](#cc2)
 * [三、CacheCloud解决什么问题](#cc3)
@@ -13,7 +13,7 @@
 
 <a name="cc1"/>
 ## 一、CacheCloud是做什么的
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CacheCloud提供一个Redis云管理平台：实现多种类型(**Redis Standalone**、**Redis Sentinel**、**Redis Cluster**)自动部署、解决Redis实例碎片化现象、提供完善统计、监控、运维功能、减少开发人员的运维成本和误操作，提高机器的利用率，提供灵活的伸缩性，提供方便的接入客户端。
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CacheCloud提供一个Redis云管理平台：实现多种类型(**Redis Standalone**、**Redis Sentinel**、**Redis Cluster**)自动部署、解决Redis实例碎片化现象、提供完善统计、监控、运维功能、减少运维成本和误操作，提高机器的利用率，提供灵活的伸缩性，提供方便的接入客户端。
 
 
 
@@ -98,15 +98,30 @@ Redis的开发人员如同使用Mysql一样，不需要运维Mysql服务器，�
 <a name="cc7-3"/>
 ####3、启动cachecloud系统
 
-#####(1). 本地启动:在cachecloud-web模块下运行
-        mvn spring-boot:run
+#####(1). 本地启动:
++  在cachecloud根目录下运行
+```Java        
+mvn clean compile install -Plocal
+```
++  在cachecloud-web模块下运行
+```Java        
+mvn spring-boot:run
+```
+
 #####(2). 生产环境
-        1. 构建：mvn -Ponline clean package
-        2. 上传war包到特定目录下:如/opt/cachecloud-web
-        3: 拷贝cachecloud-web-1.0-SNAPSHOT.conf配置到/opt/cachecloud-web目录下,注意必须跟war包同目录才生效
-        4. 作为linux服务启动:
-        sudo ln -s /opt/cachecloud-web/cachecloud-web-1.0-SNAPSHOT.war /etc/init.d/cachecloud-web 
-        /etc/init.d/cachecloud-web start
++  在cachecloud根目录下运行
+```Java        
+mvn clean compile install -Ponline
+```
++  拷贝war包(cachecloud-open-web/target/cachecloud-open-web-1.0-SNAPSHOT.war)到/opt/cachecloud-web下
++  拷贝配置文件(cachecloud-open-web/src/main/resources/cachecloud-web.conf)到/opt/cachecloud-web下，并改名为cachecloud-open-web-1.0-SNAPSHOT.conf（spring-boot要求，否则配置不生效）
++  启动
+```Java
+sudo ln -s /opt/cachecloud-web/cachecloud-web-1.0-SNAPSHOT.war /etc/init.d/cachecloud-web
+/etc/init.d/cachecloud-web start 
+```        
+        
+        
 #####(3). 登录确认
 
 #####(a) 访问：http://127.0.0.1:9999
